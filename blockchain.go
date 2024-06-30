@@ -9,7 +9,11 @@ import (
 	"time"
 )
 
-const MINING_DIFFICULTY = 3
+const (
+	MINING_DIFFICULTY = 3
+	MINING_SENDER     = "THE BLOCKCHAIN"
+	MINING_REWARD     = 1.0
+)
 
 type Block struct {
 	timestamp    int64
@@ -56,14 +60,17 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 }
 
 type Blockchain struct {
-	transactionPool []*Transaction
-	chain           []*Block
+	transactionPool   []*Transaction
+	chain             []*Block
+	blockchainAddress string
 }
 
-func NewBlockchain() *Blockchain {
+func NewBlockchain(blockchainAddress string) *Blockchain {
 	b := &Block{}
 	bc := new(Blockchain)
-	bc.chain = []*Block{}       // Initialize chain as empty slice of Block pointers
+	bc.chain = []*Block{}
+	bc.blockchainAddress = blockchainAddress
+	// Initialize chain as empty slice of Block pointers
 	bc.CreateBlock(0, b.Hash()) // Create genesis block
 	return bc
 }
@@ -128,6 +135,15 @@ func (bc *Blockchain) ProofOfWork() int {
 	return nonce
 }
 
+func (bc *Blockchain) Mining() bool {
+	bc.AddTransaction(MINING_SENDER, bc.blockchainAddress, MINING_REWARD)
+	nonce := bc.ProofOfWork()
+	previousHash := bc.LastBlock().Hash()
+	bc.CreateBlock(nonce, previousHash)
+	log.Println("action=mining,status=success")
+	return true
+}
+
 func (t *Transaction) Print() {
 	fmt.Printf("%s\n", strings.Repeat("-", 40))
 	fmt.Printf(" sender_blockchain_address %s\n", t.senderBlockchainAddress)
@@ -152,21 +168,17 @@ func init() {
 }
 
 func main() {
-
-	blockChain := NewBlockchain()
+	myBlockchainAddress := "my_block_address"
+	blockChain := NewBlockchain(myBlockchainAddress)
 	blockChain.Print()
 
 	blockChain.AddTransaction("A", "B", 1.0)
-	previousHash := blockChain.LastBlock().Hash()
-	nonce := blockChain.ProofOfWork()
-	blockChain.CreateBlock(nonce, previousHash)
+	blockChain.Mining()
 	blockChain.Print()
 
 	blockChain.AddTransaction("C", "D", 2.0)
 	blockChain.AddTransaction("X", "Y", 3.0)
-	previousHash = blockChain.LastBlock().Hash()
-	nonce = blockChain.ProofOfWork()
-	blockChain.CreateBlock(nonce, previousHash)
+	blockChain.Mining()
 	blockChain.Print()
 
 }
