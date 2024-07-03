@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blockchain Wallet</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
+    <script>
+        $(function() {
+                $.ajax({
+                    url: '/wallet',
+                    type: 'POST',
+                    success: function (data) {
+                        // Assuming data is a JSON object with keys: public_key, private_key, blockchain_address
+                        $('#public_key').val(data.public_key);
+                        $('#private_key').val(data.private_key);
+                        $('#blockchain_address').val(data.blockchain_address);
+                        // Make an AJAX POST request to /wallet endpoint
+                        console.info(data);
+                    },
+                    error : function (error) {
+                        console.error(error);
+                    }
+                })
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
