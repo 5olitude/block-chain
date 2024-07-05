@@ -58,6 +58,32 @@
 
                 })
             })
+            function reload_amount() {
+                    let data = {'blockchain_address':$('#blockchain_address').val()}
+                    $.ajax({
+                        url: '/wallet/amount',
+                        type:'GET',
+                        data : data,
+                        success:function (response) {
+                             let amount = response['amount'];
+                             $('#wallet_amount').text("Wallet Amount $"+amount);
+                             console.info(amount)
+                        },
+                        error : function (error) {
+                            console.error(error)
+                        }
+
+                    })
+            }
+            /*
+            $('#reload_wallet').click(
+                function () {
+                    reload_amount()
+                }
+            );
+            */
+
+                setInterval(reload_amount,3000)
         });
     </script>
     <style>
@@ -124,7 +150,7 @@
 <div class="container">
     <div class="wallet-info">
         <h2>My Blockchain Wallet</h2>
-        <div id="wallet_amount">Wallet Amount: $100</div>
+        <div id="wallet_amount">Wallet Amount: $0</div>
     </div>
     <div class="form-group">
         <label for="public_key">Public Key:</label>
